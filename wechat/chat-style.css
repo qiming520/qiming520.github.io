@@ -1,0 +1,93 @@
+/* 微信聊天界面样式优化 */
+
+/* 状态栏图标样式 */
+.status-bar-icons {
+    display: flex;
+    align-items: center;
+}
+
+.status-bar-icon {
+    height: 16px;
+    width: auto;
+    margin-left: 5px;
+}
+
+/* 聊天内容区域背景色 */
+.chat-content {
+    background-color: #ebebeb !important; /* 更准确的微信浅灰色背景 */
+}
+
+/* 聊天输入框样式优化 */
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+    height: 56px;
+}
+
+/* 语音图标样式 */
+.chat-input-voice {
+    width: 30px;
+    height: 30px;
+    background-image: url('voice.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* 表情图标样式 */
+.chat-input-emoji {
+    width: 30px;
+    height: 30px;
+    background-image: url('emoji.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* 输入框样式 */
+.chat-input-field {
+    flex: 1;
+    height: 36px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #ffffff;
+    font-size: 14px;
+    outline: none;
+}
+
+/* 加号图标样式 */
+.chat-input-plus {
+    width: 30px;
+    height: 30px;
+    background-image: url('add.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+/* 消息气泡样式优化 */
+.message-content {
+    padding: 10px 12px;
+    border-radius: 4px;
+    max-width: 70%;
+    word-break: break-word;
+}
+
+.message.sent .message-content {
+    background-color: #95ec69; /* 微信发送消息的绿色 */
+}
+
+.message.received .message-content {
+    background-color: #ffffff; /* 微信接收消息的白色 */
+}

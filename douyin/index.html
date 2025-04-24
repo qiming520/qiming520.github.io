@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抖音聊天记录生成器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <div class="chat-header-back">←</div>
+                <div class="chat-header-title">
+                    <div class="avatar">
+                        <img src="" alt="用户头像" id="userAvatar">
+                    </div>
+                    <span id="userName">用户昵称</span>
+                </div>
+                <div class="chat-header-actions">
+                    <div class="video-call">视频通话</div>
+                    <div class="more">•••</div>
+                </div>
+            </div>
+            <div class="chat-content" id="chatContent">
+                <!-- 对话内容将在这里显示 -->
+            </div>
+            <div class="chat-bottom">
+                <img src="bottomOperate.png" alt="底部操作栏" class="bottom-operate">
+            </div>
+        </div>
+        <div class="settings-container" id="settingsContainer">
+            <div class="settings-toggle" id="settingsToggle"></div>
+            <h2>页面设置</h2>
+            <div class="settings-group">
+                <h3>用户信息设置</h3>
+                <div class="user-settings">
+                    <div class="avatar-setting">
+                        <label>我的头像：</label>
+                        <input type="file" id="avatarInput" accept="image/*">
+                    </div>
+                    <div class="name-setting">
+                        <label>我的昵称：</label>
+                        <input type="text" id="nameInput" placeholder="输入昵称">
+                    </div>
+                    <div class="avatar-setting">
+                        <label>对方头像：</label>
+                        <input type="file" id="otherAvatarInput" accept="image/*">
+                    </div>
+                    <div class="name-setting">
+                        <label>对方昵称：</label>
+                        <input type="text" id="otherNameInput" placeholder="输入对方昵称">
+                    </div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>对话区域宽度</h3>
+                <div class="size-controls">
+                    <label for="chatWidth">宽度:</label>
+                    <input type="range" id="chatWidth" min="300" max="800" value="340">
+                    <span id="chatWidthValue">340px</span>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>对话操作</h3>
+                <div class="settings-buttons">
+                    <div class="file-input-container">
+                        <input type="file" id="importFile" accept=".text,.txt">
+                        <button id="importBtn">导入对话</button>
+                    </div>
+                    <button id="clearChat">清空对话</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>添加信息</h3>
+                <div class="chat-input">
+                    <textarea id="manualInput" placeholder="输入对话内容，格式为：A: 问题 或 B: 回答"></textarea>
+                    <button id="addMessage">添加消息</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>导出设置</h3>
+                <button id="exportChat">导出对话</button>
+                <button id="exportImage">导出为图片</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

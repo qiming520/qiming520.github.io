@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek聊天对话生成器</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dialog-box.css">
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container" id="chatContainer">
+            <h2>对话内容生成区</h2>
+            <div class="chat-content" id="chatContent">
+                <!-- 对话内容将在这里显示 -->
+            </div>
+            <!-- 模拟对话框将在对话内容底部显示 -->
+            <div id="dialogBoxContainer" class="dialog-box-container">
+                <div class="dialog-box-content">
+                    <div class="dialog-box-input-area">
+                        <textarea class="dialog-box-input" placeholder="给DeepSeek发送消息"></textarea>
+                        <div class="dialog-box-buttons">
+                            <button class="dialog-box-think-btn">
+                                <img src="think.png" class="dialog-box-icon-1" alt="深度思考">
+                                深度思考 (R1)
+                            </button>
+                            <button class="dialog-box-search-btn">
+                                <img src="online.png" class="dialog-box-icon-1" alt="联网搜索">
+                                联网搜索
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dialog-box-actions">
+                        <div class="dialog-box-attachment">
+                            <img src="upload.png" class="dialog-box-icon" alt="上传文件">
+                        </div>
+                        <div class="dialog-box-send">
+                            <img src="send.png" class="dialog-box-icon" alt="发送">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="settings-container">
+            <h2>页面设置区</h2>
+            <div class="settings-group">
+                <h3>对话区域大小</h3>
+                <div class="size-controls">
+                    <label for="chatWidth">宽度:</label>
+                    <input type="range" id="chatWidth" min="300" max="800" value="500">
+                    <span id="chatWidthValue">500px</span>
+                </div>
+                <div class="size-controls">
+                    <label for="chatHeight">高度:</label>
+                    <input type="range" id="chatHeight" min="300" max="800" value="500">
+                    <span id="chatHeightValue">500px</span>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>对话操作</h3>
+                <div class="settings-buttons">
+                    <!-- <div class="file-input-container">
+                        <input type="file" id="importFile" accept=".text,.txt">
+                        <button id="importBtn">导入对话</button>
+                    </div> -->
+                    <button id="clearChat">清空对话</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>添加信息</h3>
+                <div class="chat-input">
+                    <textarea id="manualInput" placeholder="输入对话内容，格式为：A: 问题 或 B: 回答"></textarea>
+                    <button id="addMessage">添加消息</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <h3>导出设置</h3>
+                <button id="exportChat">导出对话</button>
+                <button id="exportImage">导出为图片</button>
+            </div>
+            <!-- 移除对话框设置，因为对话框默认显示 -->
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

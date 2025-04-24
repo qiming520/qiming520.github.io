@@ -1,0 +1,140 @@
+/* 模拟对话框样式 */
+.dialog-box-container {
+    position: relative;
+    width: 100%;
+    background-color: rgb(243 244 246);
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+/* 对话框标题 - 显示为"DeepSeek 发送消息" */
+.dialog-box-header {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 10px;
+    padding-left: 5px;
+}
+
+/* 输入区域样式 */
+.dialog-box-content {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    gap: 10px;
+}
+
+/* 左侧输入框和按钮区域 */
+.dialog-box-input-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 输入框样式 */
+.dialog-box-input {
+    width: 100%;
+    min-height: 40px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    resize: none;
+    outline: none;
+    font-size: 14px;
+}
+
+/* 按钮区域 */
+.dialog-box-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* 深度思考按钮 */
+.dialog-box-think-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: none;
+    border-radius: 20px;
+    color: #333;
+    font-size: 13px;
+    cursor: pointer;
+    .dialog-box-think-btn img, .dialog-box-search-btn img {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* 联网搜索按钮 */
+.dialog-box-search-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: none;
+    border-radius: 20px;
+    color: #333;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* 右侧附件和发送按钮区域 */
+.dialog-box-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* 附件按钮 */
+.dialog-box-attachment {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* 发送按钮 */
+.dialog-box-send {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* 按钮图标 */
+.dialog-box-icon {
+    width: 32px;
+    height: 32px;
+    fill: #666;
+}
+
+.dialog-box-icon-1 {
+  width: 22px;
+  height: 22px;
+  fill: #666;
+}
+
+/* 底部提示文本 */
+.dialog-box-footer {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    margin-top: 10px;
+}
