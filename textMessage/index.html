@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苹果短信聊天记录生成器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container">
+            <div class="phone-frame" id="phone-frame">
+                <div class="status-bar">
+                    <img src="top.png" alt="顶部状态栏" class="top-img">
+                </div>
+                <div class="phone-header">
+                    <div class="header-content">
+                        <div class="back-button">
+                            <img src="return.png" alt="返回" class="return-img">
+                        </div>
+                        <div class="contact-info">
+                            <div class="avatar-container">
+                                <img id="contact-avatar" src="./avatar.png" alt="联系人头像" class="contact-avatar">
+                            </div>
+                            <div id="contact-name" class="contact-name">10001</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-area" id="chat-area">
+                    <!-- 聊天内容将在这里动态生成 -->
+                </div>
+                <div class="phone-footer">
+                    <img src="bottom.png" alt="底部输入栏" class="bottom-img">
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-panel" id="settings-panel">
+            <div class="panel-header">
+                <h2>设置面板</h2>
+                <button id="toggle-panel" class="toggle-btn">收起</button>
+            </div>
+            <div class="panel-content">
+                <div class="setting-group">
+                    <h3>基本设置</h3>
+                    <div class="setting-item">
+                        <label for="contact-name-input">联系人昵称：</label>
+                        <input type="text" id="contact-name-input" value="10001">
+                    </div>
+                    <div class="setting-item">
+                        <label for="avatar-upload">联系人头像：</label>
+                        <input type="file" id="avatar-upload" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>聊天页面尺寸</h3>
+                    <div class="setting-item">
+                        <label for="phone-width">宽度 (px)：</label>
+                        <input type="number" id="phone-width" value="375" min="300" max="600">
+                    </div>
+                    <div class="setting-item">
+                        <label for="phone-height">高度 (px)：</label>
+                        <input type="number" id="phone-height" value="750" min="500" max="900">
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>聊天记录</h3>
+                    <div class="setting-item">
+                        <label for="chat-import">导入聊天记录：</label>
+                        <textarea id="chat-import" placeholder="格式：time: 时间&#10;A: 我的消息&#10;time: 时间&#10;B: 对方消息"></textarea>
+                    </div>
+                    <button id="import-btn" class="action-btn">导入</button>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>操作</h3>
+                    <button id="generate-btn" class="action-btn">生成聊天记录</button>
+                    <button id="save-btn" class="action-btn">保存为图片</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
