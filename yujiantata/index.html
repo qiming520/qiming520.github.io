@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信聊天记录生成器</title>
+    <link rel="stylesheet" href="chat-style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            /* 确保子元素可以根据自身设置调整大小 */
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            padding-right: 400px; /* 为固定定位的settings-container预留更大空间 */
+        }
+        
+        .chat-container {
+            /* 移除flex: 3，允许宽度设置生效 */
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            overflow: hidden;
+            position: relative; /* 添加相对定位 */
+            resize: horizontal; /* 允许水平调整大小 */
+            /* 设置初始宽度，避免完全依赖JavaScript */
+            width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .settings-container {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 400px;
+            padding: 20px;
+            background-color: #ffffff;
+            overflow-y: auto;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .settings-container.collapsed {
+            transform: translateX(calc(100% - 30px));
+        }
+
+        .settings-toggle {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 60px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-toggle::before {
+            content: "◀";
+            font-size: 12px;
+            color: #666;
+        }
+
+        .settings-container.collapsed .settings-toggle::before {
+            content: "▶";
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .chat-header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000000;
+        }
+        
+        .chat-header-back {
+            position: absolute;
+            left: 15px;
+            font-size: 20px;
+            color: #000000;
+        }
+        
+        .chat-header-menu {
+            position: absolute;
+            right: 15px;
+            font-size: 20px;
+            color: #000000;
+        }
+        
+        .chat-content {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        
+        .message.sent {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 5px;
+        }
+        
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .message-content {
+            padding: 10px;
+            border-radius: 5px;
+            max-width: calc(100% - 50px);
+            word-break: break-word;
+        }
+    
+        
+        .chat-input {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .chat-input-emoji {
+            width: 31px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0px;
+            margin-left: 5px;
+            color: #7d7d7d;
+            font-size: 20px;
+        }
+        
+        .chat-input-field {
+            flex: 1;
+            height: 36px;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            background-color: #ffffff;
+        }
+        
+        .chat-input-plus {
+            width: 30px;
+            height: 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            color: #7d7d7d;
+            font-size: 20px;
+        }
+        
+        .settings-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .settings-group {
+            margin-bottom: 20px;
+        }
+        
+        .settings-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .settings-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .settings-input:focus {
+            border-color: #07c160;
+            outline: none;
+        }
+
+        .settings-button:hover {
+            background-color: #06ad56;
+        }
+
+        .settings-group {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .settings-button {
+            padding: 8px 15px;
+            background-color: #07c160;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .settings-button:hover {
+            background-color: #06ad56;
+        }
+        
+        .status-bar {
+            height: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 12px;
+            color: #000;
+        }
+        
+        .status-bar-time {
+            font-weight: bold;
+        }
+        
+        .status-bar-icons {
+            display: flex;
+        }
+        
+        .status-bar-icon {
+            margin-left: 5px;
+        }
+        
+        /* 聊天区域大小调整控件 */
+        .size-controls {
+            margin-bottom: 15px;
+        }
+        
+        .size-slider {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .size-value {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 导入文本区域 */
+        .import-textarea {
+            width: 100%;
+            height: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            resize: vertical;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                padding-right: 0;
+                padding-bottom: 400px;
+            }
+            
+            .chat-container {
+                flex: none;
+                width: 90%;
+                max-width: 500px;
+                margin: 20px auto;
+                border-right: none;
+                resize: none; /* 移动设备上禁用调整大小 */
+            }
+            
+            .settings-container {
+                width: 100%;
+                height: 400px;
+                bottom: 0;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container" id="chatContainer">
+            <div class="status-bar">
+                <div class="status-bar-time">9:48</div>
+            </div>
+            <div class="chat-header">
+                <div class="chat-header-title">遇见塔塔</div>
+            </div>
+            <div class="chat-content" id="chatContent">
+                <!-- 聊天内容将在这里动态生成 -->
+            </div>
+            <div class="chat-input">
+                <div class="chat-input-voice"></div>
+                <input type="text" class="chat-input-field" id="messageInput" placeholder="发送消息">
+                <div class="chat-input-emoji"></div>
+                <div class="chat-input-plus"></div>
+            </div>
+        </div>
+        <div class="settings-container" id="settingsContainer">
+            <div class="settings-toggle" id="settingsToggle"></div>
+            <div class="settings-group">
+                <div class="settings-title">聊天设置</div>
+                <label class="settings-label">聊天名称</label>
+                <input type="text" class="settings-input" id="chatName" value="老婆">
+                <button class="settings-button" id="updateChatName">更新名称</button>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">聊天区域大小</div>
+                <div class="size-controls">
+                    <label class="settings-label">宽度</label>
+                    <input type="range" class="size-slider" id="widthSlider" min="300" max="800" value="400">
+                    <span class="size-value" id="widthValue">500px</span>
+                </div>
+                <div class="size-controls">
+                    <label class="settings-label">高度</label>
+                    <input type="range" class="size-slider" id="heightSlider" min="400" max="800" value="740">
+                    <span class="size-value" id="heightValue">600px</span>
+                </div>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">头像设置</div>
+                <label class="settings-label">我的头像</label>
+                <input type="file" id="myAvatarInput" accept="image/*">
+                <label class="settings-label">对方头像</label>
+                <input type="file" id="otherAvatarInput" accept="image/*">
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">背景设置</div>
+                <label class="settings-label">聊天背景</label>
+                <input type="file" id="backgroundInput" accept="image/*">
+                <button class="settings-button" id="resetBackground">重置背景</button>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">消息操作</div>
+                <label class="settings-label">添加消息</label>
+                <select class="settings-input" id="messageType">
+                    <option value="sent">我发送的</option>
+                    <option value="received">对方发送的</option>
+                </select>
+                <input type="text" class="settings-input" id="newMessage" placeholder="输入消息内容">
+                <button class="settings-button" id="addMessage">添加消息</button>
+                <button class="settings-button" id="clearMessages">清空所有消息</button>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">时间戳</div>
+                <button class="settings-button" id="addTimestamp">添加时间戳</button>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">导入导出</div>
+                <label class="settings-label">从文件导入对话</label>
+                <input type="file" id="importFile" accept=".txt">
+                
+                <label class="settings-label">从文本导入对话</label>
+                <textarea class="import-textarea" id="importText" placeholder="输入格式如：A: 你好&#10;B: 你好，有什么可以帮你的吗？"></textarea>
+                <button class="settings-button" id="importFromText">导入文本</button>
+                
+                <button class="settings-button" id="exportChat">导出对话</button>
+            </div>
+            
+            <div class="settings-group">
+                <div class="settings-title">截图</div>
+                <button class="settings-button" id="captureButton">截图保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let myAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMTAwIiBmaWxsPSIjOTVlYzY5Ii8+CiAgICA8Y2lyY2xlIGN4PSI3MCIgY3k9IjgwIiByPSIyMCIgZmlsbD0id2hpdGUiLz4KICAgIDxjaXJjbGUgY3g9IjEzMCIgY3k9IjgwIiByPSIyMCIgZmlsbD0id2hpdGUiLz4KICAgIDxwYXRoIGQ9Ik03MCwxMzAgUTE0MCwxODAgMTMwLDEzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==';
+        let otherAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMTAwIiBmaWxsPSIjZmZmZmZmIi8+CiAgICA8Y2lyY2xlIGN4PSI3MCIgY3k9IjgwIiByPSIyMCIgZmlsbD0iIzMzMyIvPgogICAgPGNpcmNsZSBjeD0iMTMwIiBjeT0iODAiIHI9IjIwIiBmaWxsPSIjMzMzIi8+CiAgICA8cGF0aCBkPSJNNzAsMTMwIFExMDAsMTAwIDEzMCwxMzAiIHN0cm9rZT0iIzMzMyIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==';
+
+        // DOM 元素
+        const chatContainer = document.getElementById('chatContainer');
+        const chatContent = document.getElementById('chatContent');
+        const messageInput = document.getElementById('messageInput');
+        const chatName = document.getElementById('chatName');
+        const updateChatNameBtn = document.getElementById('updateChatName');
+        const myAvatarInput = document.getElementById('myAvatarInput');
+        const otherAvatarInput = document.getElementById('otherAvatarInput');
+        const backgroundInput = document.getElementById('backgroundInput');
+        const resetBackgroundBtn = document.getElementById('resetBackground');
+        const messageType = document.getElementById('messageType');
+        const newMessage = document.getElementById('newMessage');
+        const addMessageBtn = document.getElementById('addMessage');
+        const clearMessagesBtn = document.getElementById('clearMessages');
+        const addTimestampBtn = document.getElementById('addTimestamp');
+        const importFileInput = document.getElementById('importFile');
+        const importText = document.getElementById('importText');
+        const importFromTextBtn = document.getElementById('importFromText');
+        const exportChatBtn = document.getElementById('exportChat');
+        const captureButton = document.getElementById('captureButton');
+        const chatHeaderTitle = document.querySelector('.chat-header-title');
+        const widthSlider = document.getElementById('widthSlider');
+        const heightSlider = document.getElementById('heightSlider');
+        const widthValue = document.getElementById('widthValue');
+        const heightValue = document.getElementById('heightValue');
+
+        // 更新聊天区域大小
+        function updateChatSize() {
+            const width = widthSlider.value;
+            const height = heightSlider.value;
+            
+            // 确保宽度设置能够覆盖flex布局的影响
+            chatContainer.style.width = `${width}px`;
+            chatContainer.style.minWidth = `${width}px`;
+            chatContainer.style.maxWidth = `${width}px`;
+            chatContainer.style.height = `${height}px`;
+            
+            widthValue.textContent = `${width}px`;
+            heightValue.textContent = `${height}px`;
+            
+            // 强制重新布局
+            chatContainer.offsetHeight;
+        }
+
+        // 监听滑块变化
+        widthSlider.addEventListener('input', updateChatSize);
+        heightSlider.addEventListener('input', updateChatSize);
+
+        // 初始化聊天区域大小
+        updateChatSize();
+
+        // 设置区域展开收起功能
+        const settingsContainer = document.getElementById('settingsContainer');
+        const settingsToggle = document.getElementById('settingsToggle');
+
+        settingsToggle.addEventListener('click', () => {
+            settingsContainer.classList.toggle('collapsed');
+        });
+
+        // 更新聊天名称
+        updateChatNameBtn.addEventListener('click', () => {
+            chatHeaderTitle.textContent = chatName.value;
+        });
+
+        // 更新我的头像
+        myAvatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    myAvatar = event.target.result;
+                    updateAvatars();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 更新对方头像
+        otherAvatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    otherAvatar = event.target.result;
+                    updateAvatars();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 更新背景
+        backgroundInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    chatContent.style.backgroundImage = `url(${event.target.result})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 重置背景
+        resetBackgroundBtn.addEventListener('click', () => {
+            chatContent.style.backgroundImage = 'none';
+        });
+
+        // 添加消息
+        addMessageBtn.addEventListener('click', () => {
+            const text = newMessage.value.trim();
+            if (text) {
+                addMessage(text, messageType.value);
+                newMessage.value = '';
+            }
+        });
+
+        // 清空所有消息
+        clearMessagesBtn.addEventListener('click', () => {
+            chatContent.innerHTML = '';
+        });
+
+        // 添加时间戳
+        addTimestampBtn.addEventListener('click', () => {
+            const now = new Date();
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[now.getDay()];
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const timeString = `${weekday} ${hours}:${minutes}`;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'time-divider';
+            timeDiv.textContent = timeString;
+            chatContent.appendChild(timeDiv);
+            
+            // 滚动到底部
+            chatContent.scrollTop = chatContent.scrollHeight;
+        });
+
+        // 从文件导入对话
+        importFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target.result;
+                    processImportedChat(content);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // 从文本导入对话
+        importFromTextBtn.addEventListener('click', () => {
+            const content = importText.value.trim();
+            if (content) {
+                const lines = content.split('\n');
+                let currentTime = '';
+                
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+                    
+                    if (line.startsWith('time:')) {
+                        currentTime = line.substring(5).trim();
+                        const timeDiv = document.createElement('div');
+                        timeDiv.className = 'time-divider';
+                        timeDiv.textContent = currentTime;
+                        chatContent.appendChild(timeDiv);
+                    } else if (line.startsWith('A:') || line.startsWith('B:')) {
+                        const type = line.startsWith('A:') ? 'sent' : 'received';
+                        const text = line.substring(2).trim();
+                        addMessage(text, type);
+                    }
+                });
+                
+                importText.value = '';
+                // 滚动到底部
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
+        });
+
+        // 导出对话
+        exportChatBtn.addEventListener('click', () => {
+            let exportContent = '';
+            const messages = chatContent.querySelectorAll('.message');
+            
+            messages.forEach(message => {
+                const text = message.querySelector('.message-content').textContent;
+                if (message.classList.contains('sent')) {
+                    exportContent += `A: ${text}\n`;
+                } else {
+                    exportContent += `B: ${text}\n`;
+                }
+            });
+            
+            const blob = new Blob([exportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chat_export.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // 处理导入的聊天内容
+        function processImportedChat(content) {
+            // 清空现有聊天
+            chatContent.innerHTML = '';
+            
+            // 按行分割内容
+            const lines = content.split('\n');
+            
+            // 处理每一行
+            lines.forEach(line => {
+                // 跳过空行
+                if (!line.trim()) return;
+                
+                // 检查是否是画面描述行
+                if (line.startsWith('画面：')) {
+                    // 这里可以处理画面描述，但在当前实现中我们忽略它
+                    return;
+                }
+                
+                // 检查是否是A或B的消息（支持中英文冒号和空格）
+                const aMatch = line.match(/^A[：:]\s*(.*)/);
+                const bMatch = line.match(/^B[：:]\s*(.*)/);
+                
+                if (aMatch) {
+                    const message = aMatch[1].trim();
+                    addMessage(message, 'sent');
+                } else if (bMatch) {
+                    const message = bMatch[1].trim();
+                    addMessage(message, 'received');
+                }
+            });
+        }
+
+        // 添加消息函数
+        function addMessage(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'message-avatar';
+            
+            const avatarImg = document.createElement('img');
+            avatarImg.src = type === 'sent' ? myAvatar : otherAvatar;
+            avatarImg.alt = type === 'sent' ? '我' : '对方';
+            avatarImg.className = type === 'sent' ? 'my-avatar' : 'other-avatar';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            
+            avatarDiv.appendChild(avatarImg);
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            
+            chatContent.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
+
+        // 更新所有头像
+        function updateAvatars() {
+            const sentAvatars = document.querySelectorAll('.message.sent .message-avatar img');
+            const receivedAvatars = document.querySelectorAll('.message.received .message-avatar img');
+            
+            sentAvatars.forEach(avatar => {
+                avatar.src = myAvatar;
+            });
+            
+            receivedAvatars.forEach(avatar => {
+                avatar.src = otherAvatar;
+            });
+        }
+
+        // 输入框回车发送
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const text = messageInput.value.trim();
+                if (text) {
+                    addMessage(text, 'sent');
+                    messageInput.value = '';
+                }
+            }
+        });
+
+        // 截图功能
+        captureButton.addEventListener('click', () => {
+            // 由于html2canvas等库需要外部引入，这里使用原生方法提示用户手动截图
+            alert('请使用系统截图功能（如Windows上的Win+Shift+S或Mac上的Command+Shift+4）来截取聊天界面');
+        });
+
+        // 初始化时间
+        function updateStatusBarTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.querySelector('.status-bar-time').textContent = `${hours}:${minutes}`;
+        }
+
+        // 页面加载时更新时间
+        updateStatusBarTime();
+        // 每分钟更新一次时间
+        setInterval(updateStatusBarTime, 60000);
+    </script>
+</body>
+</html>
